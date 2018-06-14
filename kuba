@@ -1,0 +1,9 @@
+nie wiem czy dobrze zrozumialem jak ten fuzzy k means dziala, ale
+myslalem ze mozna wymyslic kilka kategorii, na ktore mozna podzielic strony na witrynie uczelni
+np strony z newsami, blogi,strony wydzialow, kierunkow itp
+powiedzmy N kategorii
+i M slow kluczowych, tak zeby do kazdej kategorii pasowalo po kilka slow kluczowych
+kazda podstrone (dokument) przeksztalcic w wektor M-elementowy, taki ze kazdej wartosci w wektorze odpowiada slowo kluczowe,
+jezeli wystepuje ono w dokumencie, to ta wartosc w wektorze = 1, inaczej 0
+puscic na tych wektorach to fuzzy k-means i zobaczyc czy grupy ktore z tego wyjda odpowiadaja naszym kategoriom
+wszakze nie wiem czy to tak dziala
