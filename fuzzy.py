@@ -3,24 +3,28 @@ import glob
 from Document import Document
 from Corpus import Corpus
 
+
 class Fuzzy:
 
-    def __init__(self):
+    def __init__(self, K, corpus):
+        self.K = K
+        self.corpus = corpus
         self.u = np.empty([2, 2])
         pass
 
 
-if __name__ == "__main__":
+def create_corpus():
     corpus = Corpus()
-    documents = []
     for folder in glob.iglob('texts/*'):
         for filename in glob.iglob(folder + "/*"):
+            corpus.add_document(Document(filename))
 
-            print(filename)
-            doc = Document(filename)
-            doc.split([])
-            documents.append(doc)
-            print(len(doc.words))
+    corpus.build_vocabulary()
+    return corpus
 
-    print(documents.__len__())
-    pass
+
+if __name__ == "__main__":
+    corpus = create_corpus()
+    corpus.count_term_doc_matrix()
+    corpus.kmeans(4)
+
