@@ -13,6 +13,11 @@ class Document(object):
     # Carriage return strings, on *nix and windows.
     CARRIAGE_RETURNS = ['\n', '\r\n']
 
+    CONJUCTION = ["the", "a", "to",  "and", "or", "but", "so", "for", "yet", "another", "as", "if",
+                  "because", "even", "though", "once", "since", "what", "or", "is", "nd"]
+
+
+
     # Final sanity-check regex to run on words before they get
     # pushed onto the core words list.
     WORD_REGEX = "^[a-z']+$"
@@ -44,9 +49,10 @@ class Document(object):
             for word in words:
                 clean_word = self._clean_word(word)
                 if clean_word and (clean_word not in STOP_WORDS_SET) and (len(clean_word) > 1):  # omit stop words
-                    self.words.append(clean_word)
+                    if len(clean_word) > 4:
+                        self.words.append(clean_word)
 
-    def _clean_word(self, word):
+    def _clean_word(self, word): #TODO poprawic
         '''
         Parses a space-delimited string from the text and determines whether or
         not it is a valid word. Scrubs punctuation, retains contraction
@@ -54,6 +60,6 @@ class Document(object):
         otherwise, returns None.
         '''
         word = word.lower()
-        for punc in Document.PUNCTUATION + Document.CARRIAGE_RETURNS:
+        for punc in Document.PUNCTUATION + Document.CONJUCTION + Document.CARRIAGE_RETURNS:
             word = word.replace(punc, '').strip("'")
         return word if re.match(Document.WORD_REGEX, word) else None

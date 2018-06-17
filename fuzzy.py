@@ -18,6 +18,7 @@ def create_corpus():
     for folder in glob.iglob('texts/*'):
         for filename in glob.iglob(folder + "/*"):
             corpus.add_document(Document(filename))
+            # corpus.add_document(Document(folder))
 
     corpus.build_vocabulary()
     return corpus
@@ -26,5 +27,5 @@ def create_corpus():
 if __name__ == "__main__":
     corpus = create_corpus()
     corpus.count_term_doc_matrix()
-    corpus.kmeans(4)
+    corpus.kmeans(3)
 

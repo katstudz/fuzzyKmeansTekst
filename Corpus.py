@@ -12,7 +12,7 @@ class Corpus(object):
         '''
         Initialize empty document list.
         '''
-        self.m = 1.5
+        self.m = 1.1
         self.kmeans_set = []
         self.documents = []
 
@@ -57,55 +57,76 @@ class Corpus(object):
         self.k = k
 
         for i in range(k):
-            self.kmeans_set.append(np.random.rand(1, len(self.vocabulary)))
+            self.kmeans_set.append(2 * np.random.rand(1, len(self.vocabulary)))
+        self.u = np.random.rand(len(self.documents), k)
 
-        self.u = np.ones([len(self.documents), k], dtype=np.double)
-        # for i in range(10):
-        #     self.updateU()
-        #     self.updateC()
+        for k in self.kmeans_set:
+            print(k)
 
-        self.showResultClusters()
+        for i in range(700):
+            self.update_u()
+            self.update_c()
 
-    def showResultClusters(self):
-        for doc in range(len(self.term_doc_matrix)):
-            print(self.documents[doc].filepath + "  " + str(self.get_cluster_index(self.term_doc_matrix[doc])))
+        self.show_result_clusters()
 
 
-    def updateC(self):
-        for ck in range(len(self.kmeans_set)):
-            for i in range(len(self.documents)):
-                self.kmeans_set[ck] = self.Euk(ck) / max(self.Eum(ck), 0.0001)
-                pass
-
-    def updateU(self, ):
+    def update_u(self):
         for k in range(self.k):
             for i in range(len(self.documents)):
-                d1 = (np.linalg.norm(self.term_doc_matrix[i] - self.kmeans_set[k]) ** (2 / (self.m - 1)))
-                d2 = self.Edcm(self.term_doc_matrix[i])
-                self.u[i][k] = 1 / d1 * d2
+                self.u[i][k] = 1 / self.Edcm(self.term_doc_matrix[i], k)
+
+
+    def Edcm(self, document, i):
+        suma = 0.0
+        for k in range(self.k):
+            suma +=((np.linalg.norm(document - self.kmeans_set[i])
+                     / (np.linalg.norm(document - self.kmeans_set[k]))) ** (2 / (self.m - 1)))
+        return suma
+
+    def update_c(self):
+        for ck in range(len(self.kmeans_set)):
+            for i in range(len(self.documents)):
+                self.kmeans_set[ck] = self.Euk(ck) / self.Eum(ck)
+                pass
 
     def Euk(self, k):
         suma = 0
         for i in range(len(self.documents)):
-            suma += self.u[i][k] * self.term_doc_matrix[i]
+            suma += (self.u[i][k] ** self.m) * self.term_doc_matrix[i]
         return suma
 
     def Eum(self, k):
-        suma = 0
+        suma = 0.0
         for i in range(len(self.documents)):
             suma += self.u[i][k] ** self.m
         return suma
 
-    def Edcm(self, document):
-        suma = 0
-        for k in range(self.k):
-            suma += 1 / (np.linalg.norm(document - self.kmeans_set[k])) ** (2 / (self.m - 1))
-        return suma
 
     def get_cluster_index(self, document):
-        min_k = self.kmeans_set[0]
-        for k in self.kmeans_set:
-            if np.linalg.norm(k - document) < np.linalg.norm(min_k - document):
+        min_k = 0
+        for k in range(len(self.kmeans_set)):
+            if np.linalg.norm(self.kmeans_set[k] - document) < np.linalg.norm(self.kmeans_set[min_k] - document):
                 min_k = k
 
-        return self.kmeans_set.index(min_k)
+        return min_k
+
+    def show_result_clusters(self):
+        result = []
+        for doc in range(len(self.term_doc_matrix)):
+            result.append([self.documents[doc].filepath,  self.get_cluster_index(self.term_doc_matrix[doc]) ])
+
+        sort_result = sorted( result, key=lambda x: x[1])
+        for i in sort_result:
+            print(i)
+
+        for cluster in self.kmeans_set:
+            self.get_most_important_word_in_cluster(cluster)
+
+    def get_most_important_word_in_cluster(self, cluster):
+        cluster_most_important_list = []
+        for i in range(10):
+            best_word = cluster.argmax()
+            cluster_most_important_list.append(self.vocabulary[best_word])
+            cluster[best_word] = 0
+
+        print(cluster_most_important_list)
